@@ -17,8 +17,10 @@ public class Store {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name, address,Password;
-    @OneToMany(mappedBy = "id")
+    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE,targetEntity = Product.class)
     private List<Product> Products;
-    @OneToMany(mappedBy = "id")
+    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE,targetEntity = Agent.class)
     private List<Agent> Agents;
 }

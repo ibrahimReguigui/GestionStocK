@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ import java.util.List;
 public class UsernamePwdAuthenticationProvider  implements AuthenticationProvider {
     @Autowired
     private AgentRepository aRepo;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Override
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {
@@ -27,9 +29,9 @@ public class UsernamePwdAuthenticationProvider  implements AuthenticationProvide
         String pwd = authentication.getCredentials().toString();
         Agent agent = aRepo.readByEmail(email);
         if (null != agent && agent.getId() > 0 &&
-                pwd.equals(agent.getPwd())) {
+                passwordEncoder.matches(pwd,agent.getPwd())) {
             return new UsernamePasswordAuthenticationToken(
-                    agent.getName(), pwd, getGrantedAuthorities(agent.getRoles()));
+                    email, null, getGrantedAuthorities(agent.getRoles()));
         } else {
             throw new BadCredentialsException("Invalid credentials!");
         }

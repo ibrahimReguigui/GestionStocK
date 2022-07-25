@@ -6,6 +6,7 @@ import Ibrahim.SpringBoot.annotation.PasswordValidator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -30,6 +31,7 @@ import javax.validation.constraints.Size;
 })
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Agent extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +40,8 @@ public class Agent extends BaseEntity{
     @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.PERSIST, targetEntity = Roles.class)
     @JoinColumn(name = "role_id", referencedColumnName = "roleId",nullable = false)
     private Roles roles;
-    @ManyToOne
-    @JoinColumn(name = "idStore")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "store_id",referencedColumnName = "id")
     private Store store;
     @NotBlank(message="Mobile number must not be blank")
     @Pattern(regexp="(^$|[0-9]{8})",message = "Mobile number must be 10 digits")

@@ -4,6 +4,7 @@ import Ibrahim.SpringBoot.model.Agent;
 import Ibrahim.SpringBoot.repository.AgentRepository;
 import Ibrahim.SpringBoot.repository.RolesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,8 +15,7 @@ public class AgentServiceImp implements AgentService {
     @Autowired
     private AgentRepository aRepo;
     @Autowired
-    private RolesRepository rRepo;
-
+    private PasswordEncoder passwordEncoder;
     public List<Agent> getAllAgents() {
         return aRepo.findAll();
     }
@@ -25,10 +25,12 @@ public class AgentServiceImp implements AgentService {
     }
 
     public void saveAgent(Agent agent) {
+        agent.setPwd(passwordEncoder.encode(agent.getPwd()));
         aRepo.save(agent);
     }
 
     public void deleteAgent(Integer id) {
         aRepo.deleteById(id);
     }
+
 }

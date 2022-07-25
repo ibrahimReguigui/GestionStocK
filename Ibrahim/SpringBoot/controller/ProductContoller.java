@@ -1,6 +1,9 @@
 package Ibrahim.SpringBoot.controller;
 
+import Ibrahim.SpringBoot.model.Agent;
 import Ibrahim.SpringBoot.model.Product;
+import Ibrahim.SpringBoot.repository.AgentRepository;
+import Ibrahim.SpringBoot.service.AgentServiceImp;
 import Ibrahim.SpringBoot.service.ProductServiceImp;
 import Ibrahim.SpringBoot.service.StoreServiceImp;
 import lombok.extern.slf4j.Slf4j;
@@ -15,42 +18,50 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
+
 @Slf4j
 @Controller
 public class ProductContoller {
 
     @Autowired
     private ProductServiceImp pServ;
-@Autowired
-private StoreServiceImp sServ;
+    @Autowired
+    private StoreServiceImp sServ;
+    @Autowired
+    private AgentRepository aServ;
 
     @GetMapping("/showProducts")
-    public String showProducts(Model model, Authentication authentication) {
-
+    public String showProducts(Model model, Authentication authentication, HttpSession session) {
+        Agent agent = aServ.readByEmail(authentication.getName());
+        session.setAttribute("LoggedInAgent", agent);
         model.addAttribute("products", pServ.getAllProduct());
-        model.addAttribute("username",authentication.getName());
-        model.addAttribute("roles",authentication.getAuthorities().toString());
+        model.addAttribute("username", agent.getName());
+        model.addAttribute("roles", authentication.getAuthorities().toString());
         return "list-products.html";
     }
 
     @GetMapping("/addProductForm")
-    public String addProductForm(Model model, Authentication authentication) {
-        model.addAttribute("product", new Product(null,0,0,null,null,sServ.getStoreById(1)));
-        model.addAttribute("username",authentication.getName());
-        model.addAttribute("roles",authentication.getAuthorities().toString());
-        /*throw new RuntimeException("dddddddddddddd");*/
+    public String addProductForm(Model model, Authentication authentication, HttpSession session) {
+        model.addAttribute("product", new Product(null, 0, 0, null, null, sServ.getStoreById(1)));
+        model.addAttribute("username", authentication.getName());
+        model.addAttribute("roles", authentication.getAuthorities().toString());
+        Agent agent = (Agent) session.getAttribute("LoggedInAgent");
+
         return "add-product-form.html";
     }
 
 
     @PostMapping("/saveProduct")
-    public String saveProduct(@Valid @ModelAttribute Product newP , Errors errors) {
-        if (errors.hasErrors()){
-            log.error("form error :"+errors.toString());
+    public String saveProduct(@Valid @ModelAttribute Product newP, Errors errors, HttpSession session) {
+        if (errors.hasErrors()) {
+            log.error("form error :" + errors.toString());
             return "add-product-form.html";
         }
+        Agent agent = (Agent) session.getAttribute("LoggedInAgent");
+        newP.setStore(agent.getStore());
         pServ.saveProduct(newP);
         return "redirect:/showProducts";
     }
@@ -58,7 +69,7 @@ private StoreServiceImp sServ;
     @GetMapping("/updateForm")
     public ModelAndView updateForm(@RequestParam Integer productId) {
         ModelAndView mav = new ModelAndView("add-product-form");
-        mav.addObject("product",  pServ.getProductById(productId));
+        mav.addObject("product", pServ.getProductById(productId));
         return mav;
     }
 

@@ -27,10 +27,5 @@ public class StoreContoller {
         sServ.saveStore(newS);
         return "redirect:/connection";
     }
-    @GetMapping("/connection")
-    public ModelAndView connection() {
-        ModelAndView mav = new ModelAndView("connection");
-        mav.addObject("store", new Store());
-        return mav;
-    }
+
 }
