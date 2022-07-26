@@ -3,6 +3,7 @@ package Ibrahim.SpringBoot.controller;
 import Ibrahim.SpringBoot.model.Agent;
 import Ibrahim.SpringBoot.model.Product;
 import Ibrahim.SpringBoot.repository.AgentRepository;
+import Ibrahim.SpringBoot.repository.ProductRepository;
 import Ibrahim.SpringBoot.service.AgentServiceImp;
 import Ibrahim.SpringBoot.service.ProductServiceImp;
 import Ibrahim.SpringBoot.service.StoreServiceImp;
@@ -12,10 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
@@ -28,24 +26,27 @@ public class ProductContoller {
 
     @Autowired
     private ProductServiceImp pServ;
+
     @Autowired
-    private StoreServiceImp sServ;
+    private AgentRepository aRepo;
     @Autowired
-    private AgentRepository aServ;
+    private ProductRepository pRepo;
 
     @GetMapping("/showProducts")
-    public String showProducts(Model model, Authentication authentication, HttpSession session) {
-        Agent agent = aServ.readByEmail(authentication.getName());
+    public ModelAndView showProducts(Model model, Authentication authentication, HttpSession session,@RequestParam(value = "bill", required = false) String bill) {
+        ModelAndView mav=new ModelAndView("list-products");
+        Agent agent = aRepo.readByEmail(authentication.getName());
         session.setAttribute("LoggedInAgent", agent);
-        model.addAttribute("products", pServ.getAllProduct());
-        model.addAttribute("username", agent.getName());
-        model.addAttribute("roles", authentication.getAuthorities().toString());
-        return "list-products.html";
+        mav.addObject("products", pRepo.getAllStoreProduct(agent.getStore().getId()));
+        mav.addObject("username", agent.getName());
+        mav.addObject("roles", authentication.getAuthorities().toString());
+        mav.addObject("bill",bill);
+        return mav;
     }
 
     @GetMapping("/addProductForm")
     public String addProductForm(Model model, Authentication authentication, HttpSession session) {
-        model.addAttribute("product", new Product(null, 0, 0, null, null, sServ.getStoreById(1)));
+        model.addAttribute("product", new Product());
         model.addAttribute("username", authentication.getName());
         model.addAttribute("roles", authentication.getAuthorities().toString());
         Agent agent = (Agent) session.getAttribute("LoggedInAgent");

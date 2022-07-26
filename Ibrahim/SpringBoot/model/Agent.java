@@ -13,6 +13,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Entity
 @Table(name="Agents")
@@ -65,4 +66,8 @@ public class Agent extends BaseEntity{
     @Size(min=5, message="Confirm Password must be at least 5 characters long")
     @Transient
     private String confirmPwd;
+
+    @OneToMany(mappedBy = "id", fetch = FetchType.LAZY,
+            cascade = CascadeType.PERSIST,targetEntity = Bill.class)
+    private List<Bill> Bills;
 }

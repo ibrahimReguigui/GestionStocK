@@ -28,9 +28,12 @@ public class Product extends BaseEntity {
     @NotBlank(message="Categorie must not be blank")
     @Size(min = 3,message = "Categorie must be at least 3 characters long")
     private String categories;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "store_id",referencedColumnName = "id")
     private Store store;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "bill",referencedColumnName = "id")
+    private Bill bill;
 
   /*  public Product() {
     }

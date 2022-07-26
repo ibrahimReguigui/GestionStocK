@@ -3,6 +3,7 @@ package Ibrahim.SpringBoot.service;
 import Ibrahim.SpringBoot.model.Product;
 import Ibrahim.SpringBoot.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,5 +30,6 @@ public class ProductServiceImp implements ProductService {
     public Product getProductById(Integer productId) {
         return pRepo.findById(productId).get();
     }
+
 
 }
