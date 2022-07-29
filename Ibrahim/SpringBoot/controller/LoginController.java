@@ -54,7 +54,6 @@ public class LoginController {
 
     @GetMapping("/register")
     public String registerPage(Model model) {
-        log.error("aaaaaaaaaaaaaaaaaaa"+rServ.getRoles().toString());
         model.addAttribute("agent", new Agent());
         model.addAttribute("roles",rServ.getRoles());
         return "register-agent.html";

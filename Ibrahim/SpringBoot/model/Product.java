@@ -3,6 +3,7 @@ package Ibrahim.SpringBoot.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
@@ -14,6 +15,7 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +27,9 @@ public class Product extends BaseEntity {
     @NotBlank(message="Name must not be blank")
     @Size(min = 3,message = "Name must be at least 3 characters long")
     private String name ;
+    @NotBlank(message="Reference must not be blank")
+    @Size(min = 3,message = "Reference must be at least 4 characters long")
+    private String reference ;
     @NotBlank(message="Categorie must not be blank")
     @Size(min = 3,message = "Categorie must be at least 3 characters long")
     private String categories;

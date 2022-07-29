@@ -3,6 +3,7 @@ package Ibrahim.SpringBoot.controller;
 import Ibrahim.SpringBoot.model.Agent;
 import Ibrahim.SpringBoot.model.Product;
 import Ibrahim.SpringBoot.repository.AgentRepository;
+import Ibrahim.SpringBoot.repository.BillRepository;
 import Ibrahim.SpringBoot.repository.ProductRepository;
 import Ibrahim.SpringBoot.service.AgentServiceImp;
 import Ibrahim.SpringBoot.service.ProductServiceImp;
@@ -33,14 +34,13 @@ public class ProductContoller {
     private ProductRepository pRepo;
 
     @GetMapping("/showProducts")
-    public ModelAndView showProducts(Model model, Authentication authentication, HttpSession session,@RequestParam(value = "bill", required = false) String bill) {
+    public ModelAndView showProducts(Authentication authentication, HttpSession session) {
         ModelAndView mav=new ModelAndView("list-products");
         Agent agent = aRepo.readByEmail(authentication.getName());
         session.setAttribute("LoggedInAgent", agent);
         mav.addObject("products", pRepo.getAllStoreProduct(agent.getStore().getId()));
         mav.addObject("username", agent.getName());
         mav.addObject("roles", authentication.getAuthorities().toString());
-        mav.addObject("bill",bill);
         return mav;
     }
 
