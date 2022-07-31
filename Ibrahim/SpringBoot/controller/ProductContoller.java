@@ -1,6 +1,7 @@
 package Ibrahim.SpringBoot.controller;
 
 import Ibrahim.SpringBoot.model.Agent;
+import Ibrahim.SpringBoot.model.Bill;
 import Ibrahim.SpringBoot.model.Product;
 import Ibrahim.SpringBoot.repository.AgentRepository;
 import Ibrahim.SpringBoot.repository.BillRepository;
@@ -32,7 +33,8 @@ public class ProductContoller {
     private AgentRepository aRepo;
     @Autowired
     private ProductRepository pRepo;
-
+@Autowired
+private StoreServiceImp sServ;
     @GetMapping("/showProducts")
     public ModelAndView showProducts(Authentication authentication, HttpSession session) {
         ModelAndView mav=new ModelAndView("list-products");
@@ -41,6 +43,7 @@ public class ProductContoller {
         mav.addObject("products", pRepo.getAllStoreProduct(agent.getStore().getId()));
         mav.addObject("username", agent.getName());
         mav.addObject("roles", authentication.getAuthorities().toString());
+        mav.addObject("newQuantity", 0);
         return mav;
     }
 
@@ -78,5 +81,38 @@ public class ProductContoller {
     public String deleteProduct(@RequestParam Integer productId) {
         pServ.deleteProduct(productId);
         return "redirect:/showProducts";
+    }
+
+    @GetMapping("/splitProductForm")
+    public ModelAndView splitProductForm(@RequestParam Integer productId) {
+        ModelAndView mav = new ModelAndView("splitProductForm");
+        mav.addObject("product", pServ.getProductById(productId));
+        return mav;
+    }
+    @PostMapping("/splitProduct")
+    public String splitProduct(@ModelAttribute Product product, HttpSession session) {
+        Agent agent = (Agent) session.getAttribute("LoggedInAgent");
+        Product ancientP=pServ.getProductById(product.getId());
+
+
+        Product newP =new Product();
+        newP.setStore(sServ.getStoreById(agent.getStore().getId()));
+        newP.setCategories(ancientP.getCategories());
+        newP.setName(ancientP.getName());
+        newP.setPrice(ancientP.getPrice());
+        newP.setReference(ancientP.getReference());
+        newP.setQuantity(product.getQuantity());
+        newP.setCreatedBy(ancientP.getCreatedBy());
+        newP.setCreatedAt(ancientP.getCreatedAt());
+        Bill bill=(Bill)session.getAttribute("bill");
+        newP.setBill(bill);
+        pServ.saveProduct(newP);
+
+
+        ancientP.setQuantity(ancientP.getQuantity()-newP.getQuantity());
+        pServ.saveProduct(ancientP);
+
+
+        return "redirect:/addProductToBillForm";
     }
 }
