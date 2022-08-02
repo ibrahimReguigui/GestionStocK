@@ -11,6 +11,6 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query("select p from Product p where p.store.id=?1 and p.bill is null " )
     public List<Product> getAllStoreProduct(Long storeId) ;
-    @Query("select p from Product p where p.reference=?1 and p.id<>?2 " )
-    List<Product>findByReference(String ref ,int id);
+    @Query("select p from Product p where p.reference=?1 and p.id is null " )
+    List<Product>findByReference(String ref );
 }

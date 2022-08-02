@@ -7,6 +7,7 @@ import Ibrahim.SpringBoot.repository.AgentRepository;
 import Ibrahim.SpringBoot.repository.BillRepository;
 import Ibrahim.SpringBoot.repository.ProductRepository;
 import Ibrahim.SpringBoot.service.AgentServiceImp;
+import Ibrahim.SpringBoot.service.BillServiceImp;
 import Ibrahim.SpringBoot.service.ProductServiceImp;
 import Ibrahim.SpringBoot.service.StoreServiceImp;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,8 @@ public class ProductContoller {
     private AgentRepository aRepo;
     @Autowired
     private ProductRepository pRepo;
+    @Autowired
+    private BillServiceImp bServ;
 @Autowired
 private StoreServiceImp sServ;
     @GetMapping("/showProducts")
@@ -93,7 +96,9 @@ private StoreServiceImp sServ;
     public String splitProduct(@ModelAttribute Product product, HttpSession session) {
         Agent agent = (Agent) session.getAttribute("LoggedInAgent");
         Product ancientP=pServ.getProductById(product.getId());
-
+        if(ancientP.getQuantity()<product.getQuantity()){
+            return "redirect:/addProductToBillForm";
+        }
 
         Product newP =new Product();
         newP.setStore(sServ.getStoreById(agent.getStore().getId()));
@@ -110,7 +115,14 @@ private StoreServiceImp sServ;
 
 
         ancientP.setQuantity(ancientP.getQuantity()-newP.getQuantity());
-        pServ.saveProduct(ancientP);
+        bill.setTotal(bill.getTotal()+newP.getQuantity()*newP.getPrice());
+        bServ.saveBill(bill);
+        if (ancientP.getQuantity()==0){
+            pServ.deleteProduct(ancientP.getId());
+        }else {
+            pServ.saveProduct(ancientP);
+        }
+
 
 
         return "redirect:/addProductToBillForm";
